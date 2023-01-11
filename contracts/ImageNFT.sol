@@ -9,15 +9,19 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract ImageToken is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
 
+    address private marketplaceAddress;
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("ImageToken", "IMTK") {}
+    constructor(address _marketplaceAddress) ERC721("ImageToken", "IMTK") {
+        marketplaceAddress = _marketplaceAddress;
+    }
 
     function safeMint(address to, string memory uri) public {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        setApprovalForAll(marketplaceAddress, true);
     }
 
     // The following functions are overrides required by Solidity.
