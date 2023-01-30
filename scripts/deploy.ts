@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   const Image = await ethers.getContractFactory("ImageToken");
-  const deployer = await Image.deploy("0x45dD229f40732F32F2E46244b6F1b1fe9F55fcf5");
+  const deployer = await Image.deploy("0x9B5428aE421f4f49415FCc810F386c495ff3CA6C");
   console.log("Contract address: ", deployer.address);
 }
 
