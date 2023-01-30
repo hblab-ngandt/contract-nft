@@ -11,16 +11,19 @@ contract ImageToken is ERC721, ERC721URIStorage {
 
     address private marketplaceAddress;
     Counters.Counter private _tokenIdCounter;
+    mapping(string => bool) private _usedTokenURIs; // default is false
 
     constructor(address _marketplaceAddress) ERC721("ImageToken", "IMTK") {
         marketplaceAddress = _marketplaceAddress;
     }
 
     function safeMint(address to, string memory uri) public {
+        require(_usedTokenURIs[uri] == false, "URI already exists");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        _usedTokenURIs[uri] = true;
         setApprovalForAll(marketplaceAddress, true);
     }
 
@@ -37,5 +40,10 @@ contract ImageToken is ERC721, ERC721URIStorage {
         returns (string memory)
     {
         return super.tokenURI(tokenId);
+    }
+
+    function getCounterToken() public view returns(uint256) {
+        uint256 numberToken = _tokenIdCounter.current();
+        return numberToken;
     }
 }
