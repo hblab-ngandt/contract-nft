@@ -1,20 +1,35 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract ImageToken is ERC721, ERC721URIStorage {
-    using Counters for Counters.Counter;
+contract ImageToken is 
+    Initializable, 
+    ERC721Upgradeable, 
+    ERC721URIStorageUpgradeable, 
+    ReentrancyGuardUpgradeable,
+    UUPSUpgradeable 
+{
+    using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    address private marketplaceAddress;
-    Counters.Counter private _tokenIdCounter;
-    mapping(string => bool) private _usedTokenURIs; // default is false
+    CountersUpgradeable.Counter private _tokenIdCounter;
 
-    constructor(address _marketplaceAddress) ERC721("ImageToken", "IMTK") {
-        marketplaceAddress = _marketplaceAddress;
+    mapping(string => bool) private _usedTokenURIs;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize() initializer public {
+        __ERC721_init("ImageToken", "IMTK");
+        __ERC721URIStorage_init();
+        __ReentrancyGuard_init();
     }
 
     function safeMint(address to, string memory uri) public {
@@ -24,21 +39,27 @@ contract ImageToken is ERC721, ERC721URIStorage {
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
         _usedTokenURIs[uri] = true;
-        setApprovalForAll(marketplaceAddress, true);
     }
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal virtual override {}
 
     // The following functions are overrides required by Solidity.
 
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+    function _burn(uint256 tokenId)
+        internal
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+    {
         super._burn(tokenId);
     }
 
     function tokenURI(uint256 tokenId)
         public
         view
-        override(ERC721, ERC721URIStorage)
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
         returns (string memory)
-    {
+    {get
         return super.tokenURI(tokenId);
     }
 
