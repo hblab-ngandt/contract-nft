@@ -1,11 +1,14 @@
-import { ethers, upgrades } from "hardhat";
+import { ethers } from "hardhat";
 
 async function main() {
-  const Image = await ethers.getContractFactory("ImageToken");
-  const deployer = await upgrades.deployProxy(Image);
-
-  await deployer.deployed();
-  console.log("Contract address: ", deployer.address);
+  const GRToken = await ethers.getContractFactory("GRToken");
+  const grToken = await GRToken.deploy();
+  console.log("Contract address: ", grToken.address);
 }
 
-main();
+main()
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
